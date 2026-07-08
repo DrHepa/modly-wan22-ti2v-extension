@@ -1,0 +1,159 @@
+{
+  "id": "wan22-ti2v-5b",
+  "type": "model",
+  "name": "Wan2.2 TI2V 5B",
+  "displayName": "Wan2.2 TI2V 5B",
+  "version": "0.1.0",
+  "description": "Image-to-video model extension for Wan2.2 TI2V 5B. Setup prepares the Python runtime only; model weights are downloaded later from the Modly Models UI.",
+  "author": "DrHepa",
+  "source": "https://github.com/Wan-Video/Wan2.2",
+  "generator_class": "Wan22TI2VGenerator",
+  "bucket": "model-managed-setup",
+  "vram_gb": 24,
+  "tags": [
+    "modly-extension",
+    "image-to-video",
+    "video-generation",
+    "wan2.2",
+    "ti2v",
+    "cuda",
+    "flash-attn",
+    "mit",
+    "apache-2.0"
+  ],
+  "metadata": {
+    "resolution": "implemented",
+    "implementation_profile": "model-managed-setup-with-vendored-runtime",
+    "setup_contract": "python-root-setup-py-json-observable",
+    "support_state": "cuda-nvidia-first",
+    "surface_owner": "FastAPI model extension; reusable workflow video preview node is declared by this extension through Modly workflow_nodes and rendered by Modly using an allowlisted host component",
+    "headless_eligible": "conditional",
+    "linux_arm64_risk": "torch-cuda-wheel-availability",
+    "upstream_repo": "Wan-Video/Wan2.2",
+    "upstream_commit": "42bf4cfaa384bc21833865abc2f9e6c0e67233dc",
+    "hf_repo": "Wan-AI/Wan2.2-TI2V-5B",
+    "model_asset_policy": "download-from-modly-ui-only; setup.py never downloads weights",
+    "runtime_policy": "vendored Wan runtime; setup.py never clones Wan",
+    "workflow_node_policy": "provides singleton modly.workflow.preview.video so future video extensions can reuse/dedupe the player node",
+    "thermal_default_policy": "defaults favor safer first runs on sustained GPU workloads; increase frames/steps only after validating thermals"
+  },
+  "licensing": {
+    "wrapper_code": "MIT",
+    "third_party_upstream": "Wan2.2 upstream license; see vendor/wan-runtime/LICENSE.txt",
+    "model_weights": "Apache-2.0 on Hugging Face model card for Wan-AI/Wan2.2-TI2V-5B"
+  },
+  "setup": {
+    "entrypoint": "setup.py",
+    "venv_dir": "venv",
+    "downloads_model_weights": false,
+    "clones_upstream_repo": false,
+    "runtime_source": "vendor/wan-runtime",
+    "status_path": ".modly/setup/setup-status.json",
+    "log_policy": "setup.py writes plain stdout/stderr lines; Modly forwards them to install progress"
+  },
+  "nodes": [
+    {
+      "id": "image-to-video",
+      "name": "Image to Video",
+      "input": "image",
+      "output": "video",
+      "hf_repo": "Wan-AI/Wan2.2-TI2V-5B",
+      "download_check": "Wan2.2_VAE.pth",
+      "description": "Generates a 24 FPS MP4 video from an input image and text prompt using Wan2.2 TI2V 5B.",
+      "params_schema": [
+        {
+          "id": "prompt",
+          "label": "Prompt",
+          "type": "string",
+          "default": "A cinematic shot with subtle camera motion, detailed lighting, and smooth natural movement.",
+          "tooltip": "Positive motion/video prompt. This is required for Wan TI2V generation."
+        },
+        {
+          "id": "negative_prompt",
+          "label": "Negative Prompt",
+          "type": "string",
+          "default": "",
+          "tooltip": "Optional negative prompt. Leave empty to use Wan's default negative prompt."
+        },
+        {
+          "id": "orientation",
+          "label": "Orientation",
+          "type": "select",
+          "default": "auto",
+          "options": [
+            {
+              "value": "auto",
+              "label": "Auto"
+            },
+            {
+              "value": "landscape_720p",
+              "label": "Landscape 720p"
+            },
+            {
+              "value": "portrait_720p",
+              "label": "Portrait 720p"
+            }
+          ],
+          "tooltip": "Auto preserves the input orientation; fixed modes crop the input to the chosen video aspect."
+        },
+        {
+          "id": "duration",
+          "label": "Frames",
+          "type": "select",
+          "default": "81",
+          "options": [
+            {
+              "value": "81",
+              "label": "81 frames (~3.4s)"
+            },
+            {
+              "value": "121",
+              "label": "121 frames (~5.0s)"
+            }
+          ],
+          "tooltip": "Wan requires frame counts in the form 4n+1. 81 is safer for first runs; 121 gives about 5 seconds at 24 FPS."
+        },
+        {
+          "id": "steps",
+          "label": "Steps",
+          "type": "int",
+          "default": 20,
+          "min": 20,
+          "max": 50,
+          "tooltip": "Diffusion sampling steps. 20 is safer for first runs on thermally constrained systems; higher is slower and may improve quality."
+        },
+        {
+          "id": "guidance_scale",
+          "label": "Guidance Scale",
+          "type": "float",
+          "default": 5.0,
+          "min": 1.0,
+          "max": 10.0,
+          "step": 0.1,
+          "tooltip": "Classifier-free guidance scale."
+        },
+        {
+          "id": "seed",
+          "label": "Seed",
+          "type": "int",
+          "default": -1,
+          "min": -1,
+          "max": 2147483647,
+          "tooltip": "Use -1 for a random seed."
+        }
+      ]
+    }
+  ],
+  "workflow_nodes": [
+    {
+      "id": "preview-video",
+      "name": "Preview Video",
+      "description": "Preview a generated video artifact in the workflow canvas.",
+      "component": "video-preview",
+      "capability_id": "modly.workflow.preview.video",
+      "input": "video",
+      "output": "video",
+      "singleton": true
+    }
+  ]
+}

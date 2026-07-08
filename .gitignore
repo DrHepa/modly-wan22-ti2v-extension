@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.modly/setup/*.tmp
+.modly/setup/logs/
+.wan22-ti2v-runtime/
+.modly/setup/setup-status.json
