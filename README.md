@@ -4,12 +4,6 @@ Modly model extension for image-to-video generation with **Wan2.2 TI2V 5B**.
 
 This repository contains the Modly wrapper, setup script, manifest, and a vendored Wan runtime snapshot. Model weights are not bundled and are downloaded from Modly's Models UI after setup.
 
-## GitHub About
-
-- Description: `Wan2.2 TI2V 5B image-to-video extension for Modly`
-- Website: `https://github.com/Wan-Video/Wan2.2`
-- Topics: `modly-extension`, `image-to-video`, `video-generation`, `wan22`, `wan-ai`, `ti2v`, `cuda`, `pytorch`, `flash-attn`, `mit`
-
 ## Modly contract
 
 - Extension type: `model`
