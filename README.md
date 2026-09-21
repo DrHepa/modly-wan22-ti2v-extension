@@ -47,9 +47,11 @@ It will not clone upstream Wan and will not download model weights.
 
 ## Performance and thermals
 
-Video generation is a sustained GPU workload. The manifest defaults to safer first-run settings (`81` frames, `20` steps). Increase frames or steps only after validating GPU and system thermals on your machine.
+Video generation is a sustained GPU workload. The supported minimum is **24 GB of dedicated VRAM**. The manifest defaults to safer first-run settings (`81` frames, `20` steps). Increase frames or steps only after validating GPU and system thermals on your machine.
 
 A 5-second generation (`121` frames, `20` steps) can take around tens of minutes depending on hardware and cooling.
+
+On Windows, running below 24 GB may spill into shared system memory instead of failing with an immediate out-of-memory error. This remains unsupported and can be extremely slow: one reported RTX 5060 Ti 16 GB test, performed only after locally lowering the VRAM guard, peaked at 24.3 GB allocated and took about 428 seconds per step (roughly 3 hours 45 minutes for 81 frames at 720p). Keeping the 24 GB gate avoids presenting that fallback as a usable configuration. See [issue #1](https://github.com/DrHepa/modly-wan22-ti2v-extension/issues/1).
 
 ## License
 
