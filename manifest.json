@@ -3,7 +3,7 @@
   "type": "model",
   "name": "Wan2.2 TI2V 5B",
   "displayName": "Wan2.2 TI2V 5B",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Image-to-video model extension for Wan2.2 TI2V 5B. Setup prepares the Python runtime only; model weights are downloaded later from the Modly Models UI.",
   "author": "DrHepa",
   "source": "https://github.com/Wan-Video/Wan2.2",
