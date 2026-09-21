@@ -204,15 +204,15 @@ def _parse_cuda_version(cuda_version: str) -> tuple[int, int] | None:
     if not normalized:
         return None
 
-    dotted = re.fullmatch(r"(\\d{1,2})\\.(\\d)", normalized)
+    dotted = re.fullmatch(r"(\d{1,2})\.(\d)", normalized)
     if dotted:
         return int(dotted.group(1)), int(dotted.group(2))
 
-    compact = re.fullmatch(r"(\\d{2})(\\d)", normalized)
+    compact = re.fullmatch(r"(\d{2})(\d)", normalized)
     if compact:
         return int(compact.group(1)), int(compact.group(2))
 
-    major_only = re.fullmatch(r"\\d{2}", normalized)
+    major_only = re.fullmatch(r"\d{2}", normalized)
     if major_only:
         return int(normalized), 0
 
