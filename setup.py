@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 import sysconfig
@@ -193,9 +194,37 @@ def preflight_gpu_requirement(payload: dict[str, Any]) -> None:
     log(f"GPU capability preflight passed: sm_{sm}")
 
 
+def _parse_cuda_version(cuda_version: str) -> tuple[int, int] | None:
+    """Parse Modly's compact form (128) and conventional dotted form (12.8).
+
+    Empty input means that the host did not report a CUDA version. Malformed or
+    ambiguous values are rejected instead of being coerced into a supported lane.
+    """
+    normalized = cuda_version.strip()
+    if not normalized:
+        return None
+
+    dotted = re.fullmatch(r"(\\d{1,2})\\.(\\d)", normalized)
+    if dotted:
+        return int(dotted.group(1)), int(dotted.group(2))
+
+    compact = re.fullmatch(r"(\\d{2})(\\d)", normalized)
+    if compact:
+        return int(compact.group(1)), int(compact.group(2))
+
+    major_only = re.fullmatch(r"\\d{2}", normalized)
+    if major_only:
+        return int(normalized), 0
+
+    raise ValueError(f"unsupported CUDA version format: {cuda_version!r}")
+
+
 def torch_lane_supported(cuda_version: str) -> bool:
-    normalized = cuda_version.strip().lower()
-    return normalized.startswith("13") or normalized.startswith("12.8") or normalized.startswith("12.9") or normalized == ""
+    try:
+        parsed = _parse_cuda_version(cuda_version)
+    except ValueError:
+        return False
+    return parsed is None or parsed >= (12, 8)
 
 
 def create_venv(payload: dict[str, Any], ext_dir: Path) -> Path:
